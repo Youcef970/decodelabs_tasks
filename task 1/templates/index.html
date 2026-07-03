@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Analyzer | DecodeLabs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        @keyframes glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <div class="text-5xl mb-4">🔐</div>
+            <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Password Strength Analyzer
+            </h1>
+            <p class="text-gray-400 mt-2">DecodeLabs Industrial Training | Batch 2026</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="glass-card rounded-2xl p-6 md:p-8 shadow-2xl">
+            <!-- Password Input -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Enter Password</label>
+                <div class="relative">
+                    <input type="password" id="password" 
+                        class="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                        placeholder="Type or paste a password...">
+                    <button onclick="togglePassword()" 
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300">
+                        👁️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Strength Meter -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="font-medium">Password Strength</span>
+                    <span id="strengthLabel" class="text-gray-400">—</span>
+                </div>
+                <div class="h-3 bg-gray-800 rounded-full overflow-hidden">
+                    <div id="strengthBar" class="h-full transition-all duration-300 rounded-full" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Weak</span>
+                    <span>Medium</span>
+                    <span>Strong</span>
+                    <span>Very Strong</span>
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                    <div class="text-2xl mb-1">📏</div>
+                    <div class="text-xs text-gray-400">Length</div>
+                    <div id="length" class="text-lg font-bold">0</div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                    <div class="text-2xl mb-1">🔢</div>
+                    <div class="text-xs text-gray-400">Entropy</div>
+                    <div id="entropy" class="text-lg font-bold">0</div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                    <div class="text-2xl mb-1">⚠️</div>
+                    <div class="text-xs text-gray-400">Breach Check</div>
+                    <div id="breach" class="text-sm font-bold">—</div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                    <div class="text-2xl mb-1">⏱️</div>
+                    <div class="text-xs text-gray-400">Crack Time</div>
+                    <div id="crackTime" class="text-sm font-bold">—</div>
+                </div>
+            </div>
+
+            <!-- Character Variety -->
+            <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-300 mb-3">Character Types</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div id="upperBadge" class="bg-gray-800/50 rounded-lg px-3 py-2 text-center text-sm">❌ Uppercase</div>
+                    <div id="lowerBadge" class="bg-gray-800/50 rounded-lg px-3 py-2 text-center text-sm">❌ Lowercase</div>
+                    <div id="digitBadge" class="bg-gray-800/50 rounded-lg px-3 py-2 text-center text-sm">❌ Digits</div>
+                    <div id="symbolBadge" class="bg-gray-800/50 rounded-lg px-3 py-2 text-center text-sm">❌ Symbols</div>
+                </div>
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="bg-gray-900/50 rounded-lg p-4 mb-6">
+                <h3 class="text-sm font-medium text-blue-400 mb-3">📝 Feedback & Recommendations</h3>
+                <div id="feedback" class="space-y-2 text-sm text-gray-300">
+                    <p class="text-gray-500 italic">Enter a password to see analysis...</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <button onclick="generatePassword()" 
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+                    ✨ Generate Strong Password
+                </button>
+                <button onclick="copyToClipboard()" id="copyBtn" disabled
+                    class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    📋 Copy
+                </button>
+                <button onclick="clearAll()" 
+                    class="px-6 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition">
+                    🗑 Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-gray-500 text-xs mt-8">
+            <p>🔒 Your password never leaves this browser. Breach check uses k-Anonymity (partial hash only).</p>
+            <p class="mt-1">© 2026 DecodeLabs — Industrial Training Kit</p>
+        </div>
+    </div>
+
+    <script>
+        let currentPassword = "";
+        let analysisResult = null;
+
+        const passwordInput = document.getElementById('password');
+        passwordInput.addEventListener('input', analyzePassword);
+
+        async function analyzePassword() {
+            const password = passwordInput.value;
+            currentPassword = password;
+            
+            if (!password) {
+                resetDisplay();
+                return;
+            }
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: password })
+                });
+                const data = await response.json();
+                analysisResult = data;
+                updateUI(data);
+            } catch (error) {
+                console.error('Analysis failed:', error);
+            }
+        }
+        
+        function updateUI(data) {
+            const score = data.strength_score;
+            
+            // Update strength meter
+            const bar = document.getElementById('strengthBar');
+            const label = document.getElementById('strengthLabel');
+            bar.style.width = `${score}%`;
+            
+            let color, strengthText;
+            if (score >= 80) { color = '#22c55e'; strengthText = 'Very Strong'; }
+            else if (score >= 65) { color = '#3b82f6'; strengthText = 'Strong'; }
+            else if (score >= 45) { color = '#eab308'; strengthText = 'Medium'; }
+            else { color = '#ef4444'; strengthText = 'Weak'; }
+            
+            bar.style.backgroundColor = color;
+            label.innerHTML = `${strengthText} (${score}/100)`;
+            label.style.color = color;
+            
+            // Metrics
+            document.getElementById('length').innerText = data.length;
+            document.getElementById('entropy').innerText = `${data.entropy_bits} bits`;
+            
+            const breachElem = document.getElementById('breach');
+            if (data.breached) {
+                breachElem.innerHTML = '⚠️ BREACHED';
+                breachElem.style.color = '#ef4444';
+            } else {
+                breachElem.innerHTML = '✅ Clean';
+                breachElem.style.color = '#22c55e';
+            }
+            
+            // Crack time estimate
+            const crackTime = estimateCrackTime(data.entropy_bits);
+            document.getElementById('crackTime').innerHTML = crackTime;
+            
+            // Character variety badges
+            updateBadge('upperBadge', data.has_upper, 'Uppercase');
+            updateBadge('lowerBadge', data.has_lower, 'Lowercase');
+            updateBadge('digitBadge', data.has_digit, 'Digits');
+            updateBadge('symbolBadge', data.has_symbol, 'Symbols');
+            
+            // Feedback
+            const feedbackDiv = document.getElementById('feedback');
+            feedbackDiv.innerHTML = data.feedback.map(fb => 
+                `<p class="text-sm">${fb}</p>`
+            ).join('');
+            
+            document.getElementById('copyBtn').disabled = false;
+        }
+        
+        function updateBadge(elementId, has, text) {
+            const elem = document.getElementById(elementId);
+            if (has) {
+                elem.innerHTML = `✅ ${text}`;
+                elem.classList.add('border-green-500/30', 'text-green-400');
+            } else {
+                elem.innerHTML = `❌ ${text}`;
+                elem.classList.remove('border-green-500/30', 'text-green-400');
+            }
+        }
+        
+        function estimateCrackTime(entropy) {
+            if (entropy < 30) return "Instant";
+            if (entropy < 40) return "Seconds";
+            if (entropy < 50) return "Hours";
+            if (entropy < 60) return "Months";
+            if (entropy < 70) return "Years";
+            if (entropy < 80) return "Centuries";
+            return "Millions of years";
+        }
+        
+        function resetDisplay() {
+            document.getElementById('strengthBar').style.width = '0%';
+            document.getElementById('strengthLabel').innerHTML = '—';
+            document.getElementById('length').innerText = '0';
+            document.getElementById('entropy').innerText = '0 bits';
+            document.getElementById('breach').innerHTML = '—';
+            document.getElementById('crackTime').innerHTML = '—';
+            document.getElementById('upperBadge').innerHTML = '❌ Uppercase';
+            document.getElementById('lowerBadge').innerHTML = '❌ Lowercase';
+            document.getElementById('digitBadge').innerHTML = '❌ Digits';
+            document.getElementById('symbolBadge').innerHTML = '❌ Symbols';
+            document.getElementById('feedback').innerHTML = '<p class="text-gray-500 italic">Enter a password to see analysis...</p>';
+            document.getElementById('copyBtn').disabled = true;
+        }
+        
+        async function generatePassword() {
+            const response = await fetch('/generate');
+            const data = await response.json();
+            passwordInput.value = data.password;
+            analyzePassword();
+        }
+        
+        function copyToClipboard() {
+            if (currentPassword) {
+                navigator.clipboard.writeText(currentPassword);
+                alert('✅ Copied to clipboard!\nFor security, clear your clipboard after use.');
+            }
+        }
+        
+        function clearAll() {
+            passwordInput.value = '';
+            currentPassword = '';
+            resetDisplay();
+        }
+        
+        function togglePassword() {
+            const input = passwordInput;
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+    </script>
+</body>
+</html>

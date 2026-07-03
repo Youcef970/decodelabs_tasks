@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post‑Quantum IoT Crypto · DecodeLabs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-animation">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <span class="glow">⚡</span> Decode<span class="highlight">Labs</span>
+                <span class="badge">v2.0</span>
+            </div>
+            <nav>
+                <a href="/" class="active">Dashboard</a>
+                <a href="/about">Research</a>
+            </nav>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero">
+            <h1>Hybrid Chaotic‑Lattice<br /><span class="highlight">Post‑Quantum</span> Cryptography</h1>
+            <p class="subtitle">Lightweight encryption for IoMT · Real‑time security metrics</p>
+        </section>
+
+        <!-- Main Card -->
+        <div class="card glass">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="encrypt">🔒 Encrypt</button>
+                <button class="tab-btn" data-tab="decrypt">🔓 Decrypt</button>
+                <button class="tab-btn" data-tab="caesar">🏛️ Classic Caesar</button>
+                <button class="tab-btn" data-tab="metrics">📊 Metrics</button>
+            </div>
+
+            <!-- ============= ENCRYPT TAB ============= -->
+            <div id="tab-encrypt" class="tab-content active">
+                <div class="two-col">
+                    <div>
+                        <div class="form-group">
+                            <label><span class="label-icon">📝</span> Plaintext</label>
+                            <textarea id="enc-plaintext" rows="5" placeholder="Enter secret message…">Confidential: Project Delta at 0800</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><span class="label-icon">🔑</span> Master Key</label>
+                            <input type="password" id="enc-password" value="DecodeLabs_Master_Key_2026" />
+                        </div>
+                        <button id="encrypt-btn" class="btn primary">⚡ Encrypt Now</button>
+                    </div>
+                    <div id="enc-result" class="result-box" style="display:none;">
+                        <label><span class="label-icon">🔐</span> Ciphertext (Hex)</label>
+                        <div class="output" id="enc-output"></div>
+                        <button id="copy-btn" class="btn small">📋 Copy</button>
+                        <div class="sbox-preview">
+                            <label>S‑Box (first 16 values)</label>
+                            <div id="sbox-preview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============= DECRYPT TAB ============= -->
+            <div id="tab-decrypt" class="tab-content">
+                <div class="two-col">
+                    <div>
+                        <div class="form-group">
+                            <label><span class="label-icon">🔐</span> Ciphertext (Hex)</label>
+                            <textarea id="dec-ciphertext" rows="5" placeholder="Paste ciphertext…"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><span class="label-icon">🔑</span> Master Key</label>
+                            <input type="password" id="dec-password" value="DecodeLabs_Master_Key_2026" />
+                        </div>
+                        <button id="decrypt-btn" class="btn primary">🔓 Decrypt Now</button>
+                    </div>
+                    <div id="dec-result" class="result-box" style="display:none;">
+                        <label><span class="label-icon">📄</span> Decrypted Plaintext</label>
+                        <div class="output" id="dec-output"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============= CLASSIC CAESAR TAB ============= -->
+            <div id="tab-caesar" class="tab-content">
+                <div style="margin-bottom: 20px; padding: 16px; background: rgba(255,170,0,0.05); border-radius: 12px; border-left: 3px solid #ffaa44;">
+                    <h4 style="color: #ffaa44; margin-bottom: 4px;">📖 Project 2 Requirement</h4>
+                    <p style="color: #b8c8dd; font-size: 14px;">
+                        This is the <strong>mandatory</strong> Caesar cipher implementation – the foundation of encryption logic.
+                        Shift letters by a fixed number. Below, you can see the step-by-step ASCII math.
+                    </p>
+                </div>
+
+                <div class="two-col">
+                    <!-- Left: Encrypt/Decrypt controls -->
+                    <div>
+                        <div class="form-group">
+                            <label><span class="label-icon">📝</span> Text</label>
+                            <textarea id="caesar-text" rows="3" placeholder="Enter text…">Hello World</textarea>
+                        </div>
+                        <div class="form-group" style="display: flex; gap: 20px; align-items: center;">
+                            <div style="flex:1;">
+                                <label><span class="label-icon">🔢</span> Shift (1–25)</label>
+                                <input type="range" id="caesar-shift-slider" min="1" max="25" value="3"
+                                style="width:100%; accent-color: #00ffc8;" />
+                                <span id="caesar-shift-display" style="font-weight:700; color:#00ffc8; font-size:20px;">3</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button id="caesar-encrypt-btn" class="btn primary" style="flex:1;">🔒 Encrypt</button>
+                            <button id="caesar-decrypt-btn" class="btn primary" style="flex:1;">🔓 Decrypt</button>
+                            <button id="caesar-brute-btn" class="btn" style="flex:1; background: #ffaa44; box-shadow: 0 4px 25px rgba(255,170,0,0.2);">💥 Brute-Force</button>
+                        </div>
+                        <div id="caesar-result" class="result-box" style="display:none; margin-top:20px;">
+                            <label><span class="label-icon">📄</span> Result</label>
+                            <div class="output" id="caesar-output"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Visual Step-by-Step Demo -->
+                    <div>
+                        <h4 style="color: #b8c8dd; margin-bottom: 12px;">🧠 ASCII Transformation Logic</h4>
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 16px; max-height: 300px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 13px;">
+                            <div id="caesar-demo-steps" style="color: #8899aa;">
+                                <span style="color:#5a6a7a;">Type text and adjust shift to see the math…</span>
+                            </div>
+                        </div>
+                        <div id="caesar-demo-result" style="margin-top:12px; padding:10px 16px; background: rgba(0,255,200,0.05); border-radius:8px; border:1px solid rgba(0,255,200,0.1);">
+                            <strong style="color:#00ffc8;">Encrypted: </strong>
+                            <span id="caesar-demo-encrypted" style="color:#b0f0e0;">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brute-Force Results (hidden by default) -->
+                <div id="caesar-brute-results" style="display:none; margin-top:25px;">
+                    <h4 style="color: #ffaa44;">💥 All 25 Possible Decryptions</h4>
+                    <p style="color:#8899aa; font-size:13px; margin-bottom:10px;">This shows why Caesar is insecure – one of these is the correct plaintext!</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:8px; max-height:300px; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:12px; padding:12px;">
+                        <div id="caesar-brute-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============= METRICS TAB ============= -->
+            <div id="tab-metrics" class="tab-content">
+                <div class="metrics-controls">
+                    <div class="form-group">
+                        <label><span class="label-icon">🧪</span> Test Plaintext</label>
+                        <input type="text" id="metrics-text" value="The quick brown fox jumps over the lazy dog" />
+                    </div>
+                    <div class="form-group">
+                        <label><span class="label-icon">🔑</span> Key</label>
+                        <input type="password" id="metrics-password" value="DecodeLabs_Master_Key_2026" />
+                    </div>
+                    <button id="metrics-btn" class="btn primary">📊 Run Security Analysis</button>
+                </div>
+
+                <!-- Metrics Dashboard -->
+                <div id="metrics-result" style="display:none; margin-top: 30px;">
+                    <div class="metrics-grid">
+                        <!-- Avalanche -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-icon">💥</span>
+                                <h4>Avalanche Effect</h4>
+                                <span class="status-badge" id="avalanche-status">● Ideal</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="avalanche-chart"></canvas>
+                            </div>
+                            <div class="metric-value">
+                                <span id="avalanche-val">0</span>%
+                                <small>bit change</small>
+                                <span class="ideal">(Ideal: 50%)</span>
+                            </div>
+                        </div>
+
+                        <!-- Entropy -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-icon">🌀</span>
+                                <h4>Shannon Entropy</h4>
+                                <span class="status-badge" id="entropy-status">● Good</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="entropy-gauge"></canvas>
+                            </div>
+                            <div class="metric-value">
+                                <span id="entropy-val">0</span>
+                                <small>bits/byte</small>
+                                <span class="ideal">(Max: 8)</span>
+                            </div>
+                        </div>
+
+                        <!-- Key Sensitivity -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-icon">🔐</span>
+                                <h4>Key Sensitivity</h4>
+                                <span class="status-badge" id="ks-status">● Secure</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="ks-chart"></canvas>
+                            </div>
+                            <div class="metric-value">
+                                <span id="ks-val">0</span>%
+                                <small>ciphertext change</small>
+                                <span class="ideal">(Ideal: 50%)</span>
+                            </div>
+                        </div>
+
+                        <!-- Histogram (full width) -->
+                        <div class="metric-card full-width">
+                            <div class="metric-header">
+                                <span class="metric-icon">📊</span>
+                                <h4>Byte Frequency Histogram</h4>
+                                <span class="status-badge" id="hist-status">● Uniform</span>
+                            </div>
+                            <div class="chart-container large">
+                                <canvas id="histogram-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2026 DecodeLabs · Project 2: Post‑Quantum IoT Cryptography</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

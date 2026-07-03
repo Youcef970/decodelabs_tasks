@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-ink-950 text-paper-100 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 100% 32px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2A3140;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3A4254;
+  }
+
+  :focus-visible {
+    outline: 2px solid #FFB627;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-ink-900 border border-ink-700 rounded-lg;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-paper-400;
+  }
+
+  .data-mono {
+    @apply font-mono;
+  }
+
+  .tag {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-[11px] uppercase tracking-wide border;
+  }
+
+  .tag-flag {
+    @apply bg-signal/10 text-signal border-signal/30;
+  }
+
+  .tag-safe {
+    @apply bg-safe/10 text-safe border-safe/30;
+  }
+
+  .tag-danger {
+    @apply bg-danger/10 text-danger border-danger/30;
+  }
+
+  .btn-primary {
+    @apply bg-signal text-ink-950 font-medium px-5 py-2.5 rounded-md transition-colors hover:bg-signal/90 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply text-paper-300 font-medium px-4 py-2.5 rounded-md border border-ink-600 hover:border-ink-500 hover:text-paper-100 transition-colors;
+  }
+
+  .input-field {
+    @apply w-full bg-ink-950 border border-ink-600 rounded-md px-3.5 py-2.5 text-paper-100 placeholder:text-paper-400 outline-none focus:border-signal/60 transition-colors;
+  }
+
+  .flagged-term {
+    @apply bg-signal/20 text-signal px-1 rounded-sm;
+  }
+}
