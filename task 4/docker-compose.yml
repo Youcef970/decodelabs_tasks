@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cyberaudit
+      POSTGRES_PASSWORD: cyberaudit
+      POSTGRES_DB: cyberaudit
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyberaudit -d cyberaudit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://cyberaudit:cyberaudit@db:5432/cyberaudit
+      PORT: "5000"
+      NODE_ENV: production
+      # PUBLIC_URL is embedded in the agent .cmd download so Windows users
+      # know where to submit results. Set this to your machine's LAN IP or
+      # hostname so the agent can reach the API from other Windows machines.
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:5000}
+    ports:
+      # Exposed to the host so the Windows security agent (which runs
+      # natively on Windows, not in a container) can reach the API at
+      # http://localhost:5000 or http://<your-ip>:5000
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

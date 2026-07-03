@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+**/dist
+**/build
+**/.cache
+.git
+.gitignore
+.local
+.agents
+attached_assets
+**/.replit-artifact
+pnpm-lock.yaml
+*.log
+*.zip

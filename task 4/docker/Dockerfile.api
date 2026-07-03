@@ -1,0 +1,27 @@
+FROM node:22-slim AS base
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copy workspace manifests + all lib/artifact source (monorepo needs the
+# full workspace for pnpm to wire workspace:* links correctly)
+COPY package.json pnpm-workspace.yaml tsconfig.json tsconfig.base.json .npmrc ./
+COPY lib ./lib
+COPY artifacts/api-server ./artifacts/api-server
+COPY scripts/windows-agent ./scripts/windows-agent
+
+RUN pnpm install --ignore-scripts || true
+RUN cd node_modules/esbuild && npm run build-package || true
+RUN pnpm install
+
+# Compile the API server with esbuild (pulls in workspace packages directly)
+RUN pnpm --filter @workspace/api-server run build
+
+ENV NODE_ENV=production
+EXPOSE 5000
+
+COPY docker/entrypoint-api.sh /app/entrypoint-api.sh
+RUN chmod +x /app/entrypoint-api.sh
+
+ENTRYPOINT ["/app/entrypoint-api.sh"]

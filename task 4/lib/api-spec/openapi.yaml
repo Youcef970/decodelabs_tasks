@@ -1,0 +1,413 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: CyberAudit Pro API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: scans
+    description: Security scan operations
+  - name: agent
+    description: Windows agent operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /scans:
+    get:
+      operationId: listScans
+      tags: [scans]
+      summary: List all scans
+      description: Returns all security scans ordered by most recent
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of scans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScanSummary"
+
+  /scans/{id}:
+    get:
+      operationId: getScan
+      tags: [scans]
+      summary: Get scan details
+      description: Returns a scan with all its findings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Scan with findings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanDetail"
+        "404":
+          description: Scan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteScan
+      tags: [scans]
+      summary: Delete a scan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scan/ingest:
+    post:
+      operationId: ingestScan
+      tags: [scans]
+      summary: Ingest scan from Windows agent
+      description: Receives scan data submitted by the PowerShell agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScanIngest"
+      responses:
+        "201":
+          description: Scan stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestResult"
+        "400":
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [scans]
+      summary: Dashboard statistics
+      description: Aggregated stats for the dashboard (total scans, scores, finding counts)
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /agent/download:
+    get:
+      operationId: downloadAgent
+      tags: [agent]
+      summary: Download Windows agent bundle
+      description: Returns a ZIP containing the PowerShell agent scripts pre-configured with the server URL
+      responses:
+        "200":
+          description: ZIP archive
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ScanSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+        score:
+          type: integer
+        grade:
+          type: string
+        hostname:
+          type: ["string", "null"]
+        os:
+          type: ["string", "null"]
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        lowCount:
+          type: integer
+        totalFindings:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - label
+        - score
+        - grade
+        - criticalCount
+        - highCount
+        - mediumCount
+        - lowCount
+        - totalFindings
+        - createdAt
+
+    Finding:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [Critical, High, Medium, Low, Info]
+        category:
+          type: string
+        recommendation:
+          type: ["string", "null"]
+        evidence:
+          type: ["string", "null"]
+        cvssScore:
+          type: ["number", "null"]
+      required:
+        - id
+        - title
+        - description
+        - severity
+        - category
+
+    SystemInfo:
+      type: object
+      properties:
+        hostname:
+          type: ["string", "null"]
+        os:
+          type: ["string", "null"]
+        architecture:
+          type: ["string", "null"]
+        cpu:
+          type: ["string", "null"]
+        ram:
+          type: ["string", "null"]
+        uptime:
+          type: ["string", "null"]
+        domain:
+          type: ["string", "null"]
+        manufacturer:
+          type: ["string", "null"]
+        model:
+          type: ["string", "null"]
+        biosVersion:
+          type: ["string", "null"]
+
+    ScanDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+        score:
+          type: integer
+        grade:
+          type: string
+        systemInfo:
+          $ref: "#/components/schemas/SystemInfo"
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Finding"
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        lowCount:
+          type: integer
+        totalFindings:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - label
+        - score
+        - grade
+        - findings
+        - criticalCount
+        - highCount
+        - mediumCount
+        - lowCount
+        - totalFindings
+        - createdAt
+
+    ScanIngest:
+      type: object
+      properties:
+        label:
+          type: string
+        systemInfo:
+          $ref: "#/components/schemas/SystemInfo"
+        findings:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              severity:
+                type: string
+              category:
+                type: string
+              recommendation:
+                type: ["string", "null"]
+              evidence:
+                type: ["string", "null"]
+              cvssScore:
+                type: ["number", "null"]
+            required:
+              - title
+              - description
+              - severity
+              - category
+      required:
+        - label
+        - findings
+
+    IngestResult:
+      type: object
+      properties:
+        scanId:
+          type: integer
+        score:
+          type: integer
+        grade:
+          type: string
+        findingCount:
+          type: integer
+      required:
+        - scanId
+        - score
+        - grade
+        - findingCount
+
+    ScoreTrend:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        score:
+          type: integer
+        label:
+          type: string
+      required:
+        - date
+        - score
+        - label
+
+    DashboardStats:
+      type: object
+      properties:
+        totalScans:
+          type: integer
+        averageScore:
+          type: ["number", "null"]
+        lastScanAt:
+          type: ["string", "null"]
+          format: date-time
+        totalCritical:
+          type: integer
+        totalHigh:
+          type: integer
+        topCategories:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+            required:
+              - category
+              - count
+        scoreTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreTrend"
+      required:
+        - totalScans
+        - totalCritical
+        - totalHigh
+        - topCategories
+        - scoreTrend
