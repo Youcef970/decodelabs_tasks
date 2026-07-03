@@ -58,7 +58,7 @@ git clone https://github.com/Youcef970/password-strength-analyzer.git
 cd password-strength-analyzer
 
 # Install dependencies
-pip install requests customtkinter
+pip install requirements.txt
 
 # Run the application
-python main.py
+python app.py
