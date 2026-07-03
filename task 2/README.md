@@ -168,8 +168,4 @@ NIST – For the lightweight cryptography research motivation.
 
 Chart.js – For beautiful, responsive visualisations.
 
-📧 Contact
-Author: [Your Name]
-GitHub: @your-username
-LinkedIn: linkedin.com/in/your-profile
-Email: your.email@example.com
+
